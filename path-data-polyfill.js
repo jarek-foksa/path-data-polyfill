@@ -2658,9 +2658,6 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       return reducedPathData;
     };
 
-    // @info
-    //   Normalize path data to consist from subpaths where each subpath starts with "M" segment, followed
-    //   by one or more "L" and "C" segments, optionally followed by "Z" segment.
     var normalizePathData = function(pathData) {
       var absolutizedPathData = absolutizePathData(pathData);
       var reducedPathData = reducePathData(absolutizedPathData);
