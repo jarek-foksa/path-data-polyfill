@@ -14,3 +14,5 @@ More info:
 - https://svgwg.org/specs/paths/#InterfaceSVGPathData
 - https://lists.w3.org/Archives/Public/www-svg/2015Feb/0036.html
 - https://groups.google.com/a/chromium.org/forum/#!searchin/blink-dev/pathSegList/blink-dev/EDC3cBg9mCU/Ukhx2UXmCgAJ
+- https://code.google.com/p/chromium/issues/detail?id=539385
+- https://code.google.com/p/chromium/issues/detail?id=545467
