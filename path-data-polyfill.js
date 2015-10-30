@@ -2721,23 +2721,28 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
     };
 
     SVGPathElement.prototype.setPathData = function(pathData) {
-      var d = "";
-
-      for (var i = 0, l = pathData.length; i < l; i += 1) {
-        var seg = pathData[i];
-
-        if (i > 0) {
-          d += " ";
-        }
-
-        d += seg.type;
-
-        if (seg.values) {
-          d += " " + seg.values.join(" ");
-        }
+      if (pathData.length === 0) {
+        this.removeAttribute("d");
       }
+      else {
+        var d = "";
 
-      this.setAttribute("d", d);
+        for (var i = 0, l = pathData.length; i < l; i += 1) {
+          var seg = pathData[i];
+
+          if (i > 0) {
+            d += " ";
+          }
+
+          d += seg.type;
+
+          if (seg.values) {
+            d += " " + seg.values.join(" ");
+          }
+        }
+
+        this.setAttribute("d", d);
+      }
     };
   })();
 }
