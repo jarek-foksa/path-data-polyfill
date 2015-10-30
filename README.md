@@ -1,6 +1,6 @@
-# SVG path data polyfill
+### SVG path data polyfill
 
-Polyfill for SVG 2 getPathData() and setPathData() methods. Does not rely on path.pathSegList API. Based on proper parser rather than regular expressions.
+Polyfill for SVG 2 getPathData() and setPathData() methods. Does not rely on path.pathSegList API. Uses proper parser rather than regular expressions.
 
 Based on:
 - SVGPathDataParser by Gavin Kistner (MIT License)
