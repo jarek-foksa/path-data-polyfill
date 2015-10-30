@@ -2242,7 +2242,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
 
     var clonePathData = function(pathData) {
       return pathData.map( function(seg) {
-        return {type: seg.type, values: Array.from(seg.values)}
+        return {type: seg.type, values: Array.prototype.slice.call(seg.values)}
       });
     };
 
@@ -2473,11 +2473,11 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       var lastControlX = null;
       var lastControlY = null;
 
-      currentX = null;
-      currentY = null;
+      var currentX = null;
+      var currentY = null;
 
-      subpathX = null;
-      subpathY = null;
+      var subpathX = null;
+      var subpathY = null;
 
       for (var seg of pathData) {
         // Insert explicit M after Z
@@ -2658,10 +2658,68 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       return reducedPathData;
     };
 
+    // @info
+    //   Takes path data consisting from "M", "L", "C" and "Z" segs, returns path data where each subpath starts
+    //   with "M" seg, followed by one or more "C" or "L" segs, optionally followed by "Z" seg.
+    var simplifyPathData = function(pathData) {
+      var simplifiedPathData = [];
+      var lastType = null;
+
+      var lastControlX = null;
+      var lastControlY = null;
+
+      var currentX = null;
+      var currentY = null;
+
+      var subpathX = null;
+      var subpathY = null;
+
+      for (var seg of pathData) {
+        // Insert explicit M after Z
+        if (lastType === "Z" && seg.type !== "M" && seg.type !== "Z") {
+          simplifiedPathData.push({type: "M", values: [subpathX, subpathY]});
+        }
+
+        if (seg.type === "M") {
+          // M is redundant if it is followed by another M
+          if (lastType === "M") {
+            simplifiedPathData.pop();
+          }
+
+          simplifiedPathData.push(seg);
+          subpathX = seg.values[0];
+          subpathY = seg.values[1];
+        }
+        else if (seg.type === "L") {
+          simplifiedPathData.push(seg);
+        }
+        else if (seg.type === "C") {
+          simplifiedPathData.push(seg);
+        }
+        else if (seg.type === "Z") {
+          // M is redundant if it is followed by Z
+          if (lastType === "M" && simplifiedPathData.length > 1) {
+            simplifiedPathData.pop();
+          }
+          // Z is redundant if it is followed by Z
+          else if (lastType === "Z") {
+            simplifiedPathData.pop();
+          }
+
+          simplifiedPathData.push(seg);
+        }
+
+        lastType = seg.type;
+      }
+
+      return simplifiedPathData;
+    };
+
     var normalizePathData = function(pathData) {
       var absolutizedPathData = absolutizePathData(pathData);
       var reducedPathData = reducePathData(absolutizedPathData);
-      return reducedPathData;
+      var simplifiedPathData = simplifyPathData(reducedPathData);
+      return simplifiedPathData;
     };
 
     SVGPathElement.prototype.setAttribute = function(name, value) {
@@ -2696,10 +2754,10 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
           else {
             var parserData = SVGPathDataParser.parse(this.getAttribute("d"));
             pathData = parserDataToPathData(parserData);
+            this[symbols.cachedPathData] = clonePathData(pathData);
           }
 
           var normalizedPathData = normalizePathData(pathData);
-          this[symbols.cachedPathData] = clonePathData(pathData);
           this[symbols.cachedNormalizedPathData] = clonePathData(normalizedPathData);
           return normalizedPathData;
         }
