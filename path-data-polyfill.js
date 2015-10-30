@@ -2662,7 +2662,7 @@
   //   by one or more "L" and "C" segments, optionally followed by "Z" segment.
   var normalizePathData = function(pathData) {
     var absolutizedPathData = absolutizePathData(pathData);
-    var reducedPathData = reducedPathData(absolutizePathData);
+    var reducedPathData = reducePathData(absolutizePathData);
     return reducedPathData;
   };
 
