@@ -1,3 +1,4 @@
+
 // @info
 //   Polyfill for SVG 2 getPathData() and setPathData() methods. Based on:
 //   - SVGPathDataParser by Gavin Kistner (MIT License)
@@ -608,7 +609,8 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
               pos = pos1;
             }
             if (result0 !== null) {
-              result0 = (function(offset, c, args) { return commands(c,args.map(function(x){ return {x:x}})) })(pos0, result0[0], result0[2]);
+              result0 = (function(offset, c, args) { return commands(c,args.map(function(x){
+                return {x:x}})) })(pos0, result0[0], result0[2]);
             }
             if (result0 === null) {
               pos = pos0;
@@ -716,7 +718,8 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
               pos = pos1;
             }
             if (result0 !== null) {
-              result0 = (function(offset, c, args) { return commands(c,args.map(function(y){ return {y:y}})) })(pos0, result0[0], result0[2]);
+              result0 = (function(offset, c, args) { return commands(c,args.map(function(y){
+                return {y:y}})) })(pos0, result0[0], result0[2]);
             }
             if (result0 === null) {
               pos = pos0;
@@ -872,7 +875,8 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
               pos = pos1;
             }
             if (result0 !== null) {
-              result0 = (function(offset, a, b, c) { return { x1:a.x, y1:a.y, x2:b.x, y2:b.y, x:c.x, y:c.y } })(pos0, result0[0], result0[2], result0[4]);
+              result0 = (function(offset, a, b, c) {
+                return { x1:a.x, y1:a.y, x2:b.x, y2:b.y, x:c.x, y:c.y } })(pos0, result0[0], result0[2], result0[4]);
             }
             if (result0 === null) {
               pos = pos0;
@@ -1414,7 +1418,10 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
                               if (result9 !== null) {
                                 result10 = parse_coordinate_pair();
                                 if (result10 !== null) {
-                                  result0 = [result0, result1, result2, result3, result4, result5, result6, result7, result8, result9, result10];
+                                  result0 = [
+                                    result0, result1, result2, result3, result4, result5, result6, result7, result8,
+                                    result9, result10
+                                  ];
                                 } else {
                                   result0 = null;
                                   pos = pos1;
@@ -1460,7 +1467,16 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
               pos = pos1;
             }
             if (result0 !== null) {
-              result0 = (function(offset, rx, ry, xrot, large, sweep, xy) { return { rx:rx, ry:ry, xAxisRotation:xrot, largeArc:large, sweep:sweep, x:xy.x, y:xy.y } })(pos0, result0[0], result0[2], result0[4], result0[6], result0[8], result0[10]);
+              result0 = (function(offset, rx, ry, xrot, large, sweep, xy) {
+                return {
+                  rx:rx,
+                  ry:ry,
+                  xAxisRotation:xrot,
+                  largeArc:large,
+                  sweep:sweep,
+                  x:xy.x,
+                  y:xy.y
+                }})(pos0, result0[0], result0[2], result0[4], result0[6], result0[8], result0[10]);
             }
             if (result0 === null) {
               pos = pos0;
@@ -1960,7 +1976,19 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
               return a;
             }
 
-            var cmds = {m:'moveto',l:'lineto',h:'horizontal lineto',v:'vertical lineto',c:'curveto',s:'smooth curveto',q:'quadratic curveto',t:'smooth quadratic curveto',a:'elliptical arc',z:'closepath'};
+            var cmds = {
+              m:'moveto',
+              l:'lineto',
+              h:'horizontal lineto',
+              v:'vertical lineto',
+              c:'curveto',
+              s:'smooth curveto',
+              q:'quadratic curveto',
+              t:'smooth quadratic curveto',
+              a:'elliptical arc',
+              z:'closepath'
+            };
+
             for (var code in cmds) cmds[code.toUpperCase()]=cmds[code];
             function commands(code,args){
               if (!args) args=[{}];
@@ -2480,11 +2508,6 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       var subpathY = null;
 
       for (var seg of pathData) {
-        // Insert explicit M after Z
-        if (lastType === "Z" && seg.type !== "M" && seg.type !== "Z") {
-          reducedPathData.push({type: "M", values: [subpathX, subpathY]});
-        }
-
         if (seg.type === "M") {
           var x = seg.values[0];
           var y = seg.values[1];
@@ -2662,24 +2685,15 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
     //   Takes path data consisting from "M", "L", "C" and "Z" segs, returns path data where each subpath starts
     //   with "M" seg, followed by one or more "C" or "L" segs, optionally followed by "Z" seg.
     var simplifyPathData = function(pathData) {
+      if (!pathData.find(($0) => $0.type === "C" || $0.type === "L")) return [];
+
       var simplifiedPathData = [];
       var lastType = null;
 
-      var lastControlX = null;
-      var lastControlY = null;
-
-      var currentX = null;
-      var currentY = null;
-
-      var subpathX = null;
-      var subpathY = null;
+      var subpathX = 0;
+      var subpathY = 0;
 
       for (var seg of pathData) {
-        // Insert explicit M after Z
-        if (lastType === "Z" && seg.type !== "M" && seg.type !== "Z") {
-          simplifiedPathData.push({type: "M", values: [subpathX, subpathY]});
-        }
-
         if (seg.type === "M") {
           // M is redundant if it is followed by another M
           if (lastType === "M") {
@@ -2691,14 +2705,24 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
           subpathY = seg.values[1];
         }
         else if (seg.type === "L") {
+          // Insert explicit M if the last seg is Z
+          if (lastType === "Z") {
+            simplifiedPathData.push({type: "M", values: [subpathX, subpathY]});
+          }
+
           simplifiedPathData.push(seg);
         }
         else if (seg.type === "C") {
+          // Insert explicit M if the last seg is Z
+          if (lastType === "Z") {
+            simplifiedPathData.push({type: "M", values: [subpathX, subpathY]});
+          }
+
           simplifiedPathData.push(seg);
         }
         else if (seg.type === "Z") {
           // M is redundant if it is followed by Z
-          if (lastType === "M" && simplifiedPathData.length > 1) {
+          if (lastType === "M") {
             simplifiedPathData.pop();
           }
           // Z is redundant if it is followed by Z
