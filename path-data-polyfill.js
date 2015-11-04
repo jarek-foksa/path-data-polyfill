@@ -2681,69 +2681,10 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       return reducedPathData;
     };
 
-    // @info
-    //   Takes path data consisting from "M", "L", "C" and "Z" segs, returns path data where each subpath starts
-    //   with "M" seg, followed by one or more "C" or "L" segs, optionally followed by "Z" seg.
-    var simplifyPathData = function(pathData) {
-      if (!pathData.find(($0) => $0.type === "C" || $0.type === "L")) return [];
-
-      var simplifiedPathData = [];
-      var lastType = null;
-
-      var subpathX = 0;
-      var subpathY = 0;
-
-      for (var seg of pathData) {
-        if (seg.type === "M") {
-          // M is redundant if it is followed by another M
-          if (lastType === "M") {
-            simplifiedPathData.pop();
-          }
-
-          simplifiedPathData.push(seg);
-          subpathX = seg.values[0];
-          subpathY = seg.values[1];
-        }
-        else if (seg.type === "L") {
-          // Insert explicit M if the last seg is Z
-          if (lastType === "Z") {
-            simplifiedPathData.push({type: "M", values: [subpathX, subpathY]});
-          }
-
-          simplifiedPathData.push(seg);
-        }
-        else if (seg.type === "C") {
-          // Insert explicit M if the last seg is Z
-          if (lastType === "Z") {
-            simplifiedPathData.push({type: "M", values: [subpathX, subpathY]});
-          }
-
-          simplifiedPathData.push(seg);
-        }
-        else if (seg.type === "Z") {
-          // M is redundant if it is followed by Z
-          if (lastType === "M") {
-            simplifiedPathData.pop();
-          }
-          // Z is redundant if it is followed by Z
-          else if (lastType === "Z") {
-            simplifiedPathData.pop();
-          }
-
-          simplifiedPathData.push(seg);
-        }
-
-        lastType = seg.type;
-      }
-
-      return simplifiedPathData;
-    };
-
     var normalizePathData = function(pathData) {
       var absolutizedPathData = absolutizePathData(pathData);
       var reducedPathData = reducePathData(absolutizedPathData);
-      var simplifiedPathData = simplifyPathData(reducedPathData);
-      return simplifiedPathData;
+      return reducedPathData;
     };
 
     SVGPathElement.prototype.setAttribute = function(name, value) {
