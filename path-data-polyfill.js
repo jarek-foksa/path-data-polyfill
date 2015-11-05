@@ -2099,8 +2099,8 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       };
 
       var rotate = function(x, y, angleRad) {
-        var X = x * cos(angleRad) - y * sin(angleRad);
-        var Y = x * sin(angleRad) + y * cos(angleRad);
+        var X = x * Math.cos(angleRad) - y * Math.sin(angleRad);
+        var Y = x * Math.sin(angleRad) + y * Math.cos(angleRad);
         return {x: X, y: Y};
       };
 
@@ -2128,7 +2128,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         var h = (x * x) / (r1 * r1) + (y * y) / (r2 * r2);
 
         if (h > 1) {
-          h = sqrt(h);
+          h = Math.sqrt(h);
           r1 = h * r1;
           r2 = h * r2;
         }
@@ -2157,39 +2157,39 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         f2 = Math.asin(((y2 - cy) / r2).toFixed(9));
 
         if (x1 < cx) {
-          f1 = PI - f1;
+          f1 = Math.PI - f1;
         }
         if (x2 < cx) {
-          f2 = PI - f2;
+          f2 = Math.PI - f2;
         }
 
         if (f1 < 0) {
-          f1 = PI * 2 + f1;
+          f1 = Math.PI * 2 + f1;
         }
         if (f2 < 0) {
-          f2 = PI * 2 + f2;
+          f2 = Math.PI * 2 + f2;
         }
 
         if (sweepFlag && f1 > f2) {
-          f1 = f1 - PI * 2;
+          f1 = f1 - Math.PI * 2;
         }
         if (!sweepFlag && f2 > f1) {
-          f2 = f2 - PI * 2;
+          f2 = f2 - Math.PI * 2;
         }
       }
 
       var df = f2 - f1;
 
-      if (Math.abs(df) > (PI * 120 / 180)) {
+      if (Math.abs(df) > (Math.PI * 120 / 180)) {
         var f2old = f2;
         var x2old = x2;
         var y2old = y2;
 
         if (sweepFlag && f2 > f1) {
-          f2 = f1 + (PI * 120 / 180) * (1);
+          f2 = f1 + (Math.PI * 120 / 180) * (1);
         }
         else {
-          f2 = f1 + (PI * 120 / 180) * (-1);
+          f2 = f1 + (Math.PI * 120 / 180) * (-1);
         }
 
         x2 = cx + r1 * Math.cos(f2);
@@ -2643,7 +2643,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
           var r1 = seg.values[0];
           var r2 = seg.values[1];
           var angle = seg.values[2];
-          var alargeArcFlag = seg.values[3];
+          var largeArcFlag = seg.values[3];
           var sweepFlag = seg.values[4];
           var x = seg.values[5];
           var y = seg.values[6];
