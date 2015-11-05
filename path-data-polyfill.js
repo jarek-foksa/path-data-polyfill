@@ -2717,7 +2717,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
             pathData = clonePathData(this[symbols.cachedPathData]);
           }
           else {
-            var parserData = SVGPathDataParser.parse(this.getAttribute("d"));
+            var parserData = SVGPathDataParser.parse(this.getAttribute("d") || "");
             pathData = parserDataToPathData(parserData);
             this[symbols.cachedPathData] = clonePathData(pathData);
           }
@@ -2732,7 +2732,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
           return clonePathData(this[symbols.cachedPathData]);
         }
         else {
-          var parserData = SVGPathDataParser.parse(this.getAttribute("d"));
+          var parserData = SVGPathDataParser.parse(this.getAttribute("d") || "");
           var pathData = parserDataToPathData(parserData);
           this[symbols.cachedPathData] = clonePathData(pathData);
           return pathData;
