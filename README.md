@@ -1,10 +1,10 @@
 ### SVG path data polyfill
 
-Implements getPathData() and setPathData() methods from SVG Paths spec. Does not rely on path.pathSegList API. Uses proper parser rather than regular expressions.
+Implements getPathData() and setPathData() methods from SVG Paths spec. Does not rely on path.pathSegList API.
 
 Based on:
-- SVGPathDataParser by Gavin Kistner (MIT License)
-  https://github.com/hughsk/svg-path-parser 
+- SVGPathSeg polyfill by Philip Rogers (MIT License)
+  https://github.com/progers/pathseg
 - SVGPathNormalizer by Tadahisa Motooka (MIT License)
   https://github.com/motooka/SVGPathNormalizer/tree/master/src
 - arcToCubicCurves() by Dmitry Baranovskiy (MIT License)
