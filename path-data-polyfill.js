@@ -516,7 +516,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       var subpathX = null;
       var subpathY = null;
 
-      for (var seg of pathData) {
+      pathData.forEach( function(seg) {
         var type = seg.type;
 
         if (type === "M") {
@@ -717,7 +717,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
           currentX = subpathX;
           currentY = subpathY;
         }
-      }
+      });
 
       return absolutizedPathData;
     };
@@ -738,7 +738,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       var subpathX = null;
       var subpathY = null;
 
-      for (var seg of pathData) {
+      pathData.forEach( function(seg) {
         if (seg.type === "M") {
           var x = seg.values[0];
           var y = seg.values[1];
@@ -889,12 +889,12 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
             if (currentX !== x || currentY !== y) {
               var curves = arcToCubicCurves(currentX, currentY, x, y, r1, r2, angle, largeArcFlag, sweepFlag);
 
-              for (var curve of curves) {
+              curves.forEach( function(curve) {
                 reducedPathData.push({type: "C", values: curve});
 
                 currentX = x;
                 currentY = y;
-              }
+              });
             }
           }
         }
@@ -907,7 +907,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         }
 
         lastType = seg.type;
-      }
+      });
 
       return reducedPathData;
     };
