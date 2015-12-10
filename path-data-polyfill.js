@@ -965,7 +965,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
 
     SVGPathElement.prototype.setPathData = function(pathData) {
       if (pathData.length === 0) {
-        this.removeAttribute("d");
+        this.setAttribute("d", "");
       }
       else {
         var d = "";
