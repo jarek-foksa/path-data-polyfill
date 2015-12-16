@@ -11,7 +11,6 @@
 //   Jarosław Foksa
 // @license
 //   MIT License
-
 if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathData) {
   (function() {
     var commandsMap = {
@@ -26,6 +25,8 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       this._prevCommand = null;
       this._skipOptionalSpaces();
     };
+
+    var isIE = window.navigator.userAgent.indexOf("MSIE ") !== -1;
 
     Source.prototype = {
       parseSegment: function() {
@@ -346,7 +347,14 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
 
     var setAttribute = SVGPathElement.prototype.setAttribute;
     var removeAttribute = SVGPathElement.prototype.removeAttribute;
-    var symbols = {cachedPathData: Symbol(), cachedNormalizedPathData: Symbol()};
+    var symbols;
+
+    if (window.Symbol) {
+      symbols = {cachedPathData: Symbol(), cachedNormalizedPathData: Symbol()};
+    }
+    else {
+      symbols = {cachedPathData: "__cachedPathData", cachedNormalizedPathData: "__cachedNormalizedPathData"};
+    }
 
     // @info
     //   Get an array of corresponding cubic bezier curve parameters for given arc curve paramters.
@@ -965,7 +973,13 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
 
     SVGPathElement.prototype.setPathData = function(pathData) {
       if (pathData.length === 0) {
-        this.setAttribute("d", "");
+        if (isIE) {
+          // @bugfix https://github.com/mbostock/d3/issues/1737
+          this.setAttribute("d", "");
+        }
+        else {
+          this.removeAttribute("d");
+        }
       }
       else {
         var d = "";
