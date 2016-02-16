@@ -303,16 +303,16 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
           return null;
         }
 
-        var flag = false;
+        var flag = null;
         var flagChar = this._string[this._currentIndex];
 
         this._currentIndex += 1;
 
         if (flagChar === "0") {
-          flag = false;
+          flag = 0;
         }
         else if (flagChar === "1") {
-          flag = true;
+          flag = 1;
         }
         else {
           return null;
