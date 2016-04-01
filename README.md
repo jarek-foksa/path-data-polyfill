@@ -79,7 +79,8 @@ let ellipseToPath = (ellipse) => {
   let pathData = [
     {type: "M", values: [cx, cy - ry]},
     {type: "A", values: [rx, ry, 0, 0, 0, cx, cy+ry]},
-    {type: "A", values: [rx, ry, 0, 0, 0, cx, cy-ry]}
+    {type: "A", values: [rx, ry, 0, 0, 0, cx, cy-ry]},
+    {type: "Z"}
   ];
   
   path.setPathData(pathData);
