@@ -47,10 +47,9 @@ let createTrianglePath = (x = 0, y = 0, width = 100, height = 200) => {
   let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
   let pathData = [
-    { type: "M", values: [0, 0] },
-    { type: "L", values: [width / 2, 0],
-    { type: "L", values: [width, height],
-    { type: "L", values: [0, height],
+    { type: "M", values: [x + (width / 2), y] },
+    { type: "L", values: [x + width, y + height],
+    { type: "L", values: [x, y + height],
     { type: "Z"}
   ];
 
