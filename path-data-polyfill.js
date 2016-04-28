@@ -171,8 +171,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       _parseNumber: function() {
         var exponent = 0;
         var integer = 0;
-        var frac = 1;
-        var decimals= [];
+        var decimals = [];
         var sign = 1;
         var expsign = 1;
         var startIndex = this._currentIndex;
