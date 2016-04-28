@@ -172,7 +172,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         var exponent = 0;
         var integer = 0;
         var frac = 1;
-        var decimal = 0;
+        var decimals= [];
         var sign = 1;
         var expsign = 1;
         var startIndex = this._currentIndex;
@@ -239,7 +239,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
             this._string[this._currentIndex] >= "0" &&
             this._string[this._currentIndex] <= "9"
           ) {
-            decimal += (this._string[this._currentIndex] - "0") * (frac *= 0.1);
+            decimals.push(this._string[this._currentIndex] - "0");
             this._currentIndex += 1;
           }
         }
@@ -282,7 +282,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
           }
         }
 
-        var number = integer + decimal;
+        var number = integer + parseFloat("0." + decimals.join(""));
         number *= sign;
 
         if (exponent) {
