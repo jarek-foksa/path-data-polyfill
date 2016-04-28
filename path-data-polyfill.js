@@ -992,7 +992,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
 
           d += seg.type;
 
-          if (seg.values) {
+          if (seg.values && seg.values.length > 0) {
             d += " " + seg.values.join(" ");
           }
         }
