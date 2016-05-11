@@ -48,8 +48,8 @@ let createTrianglePath = (x = 0, y = 0, width = 100, height = 200) => {
 
   let pathData = [
     { type: "M", values: [x + (width / 2), y] },
-    { type: "L", values: [x + width, y + height],
-    { type: "L", values: [x, y + height],
+    { type: "L", values: [x + width, y + height] },
+    { type: "L", values: [x, y + height] },
     { type: "Z"}
   ];
 
