@@ -997,5 +997,99 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         this.setAttribute("d", d);
       }
     };
+
+    SVGRectElement.prototype.getPathData = function() {
+      var x = this.x.baseVal.value;
+      var y = this.y.baseVal.value;
+      var width = this.width.baseVal.value;
+      var height = this.height.baseVal.value;
+      var rx = this.hasAttribute("rx") ? this.rx.baseVal.value : this.ry.baseVal.value;
+      var ry = this.hasAttribute("ry") ? this.ry.baseVal.value : this.rx.baseVal.value;
+
+      var pathData = [
+        {type: "M", values: [x+rx, y]},
+        {type: "H", values: [x+width-rx]},
+        {type: "A", values: [rx, ry, 0, 0, 1, x+width, y+ry]},
+        {type: "V", values: [y+height-ry]},
+        {type: "A", values: [rx, ry, 0, 0, 1, x+width-rx, y+height]},
+        {type: "H", values: [x+rx]},
+        {type: "A", values: [rx, ry, 0, 0, 1, x, y+height-ry]},
+        {type: "V", values: [y+ry]},
+        {type: "A", values: [rx, ry, 0, 0, 1, x+rx, y]},
+        {type: "Z", values: []}
+      ];
+
+      // Get rid of redundant "A" segs when both rx and ry are 0
+      pathData = pathData.filter((s) => s.type === "A" && s.values[0] === 0 && s.values[1] === 0 ? false : true);
+
+      return pathData;
+    };
+
+    SVGCircleElement.prototype.getPathData = function() {
+      var cx = this.cx.baseVal.value;
+      var cy = this.cy.baseVal.value;
+      var r = this.r.baseVal.value;
+
+      return [
+        { type: "M",  values: [cx, cy-r] },
+        { type: "A",  values: [r, r, 0, 0, 0, cx, cy+r] },
+        { type: "A",  values: [r, r, 0, 0, 0, cx, cy-r] }
+      ];
+    };
+
+    SVGEllipseElement.prototype.getPathData = function() {
+      var cx = this.cx.baseVal.value;
+      var cy = this.cy.baseVal.value;
+      var rx = this.rx.baseVal.value;
+      var ry = this.ry.baseVal.value;
+
+      return [
+        { type: "M",  values: [cx, cy-ry] },
+        { type: "A",  values: [rx, ry, 0, 0, 0, cx, cy+ry] },
+        { type: "A",  values: [rx, ry, 0, 0, 0, cx, cy-ry] }
+      ];
+    };
+
+    SVGLineElement.prototype.getPathData = function() {
+      return [
+        { type: "M", values: [this.x1.baseVal.value, this.y1.baseVal.value] },
+        { type: "L", values: [this.x2.baseVal.value, this.y2.baseVal.value] }
+      ];
+    };
+
+    SVGPolylineElement.prototype.getPathData = function() {
+      var pathData = [];
+
+      for (var i = 0; i < this.points.numberOfItems; i += 1) {
+        var point = this.points.getItem(i);
+
+        pathData.push({
+          type: (i === 0 ? "M" : "L"),
+          values: [point.x, point.y]
+        });
+      }
+
+      return pathData;
+    };
+
+    SVGPolygonElement.prototype.getPathData = function() {
+      var pathData = [];
+
+      for (var i = 0; i < this.points.numberOfItems; i += 1) {
+        var point = this.points.getItem(i);
+
+        pathData.push({
+          type: (i === 0 ? "M" : "L"),
+          values: [point.x, point.y]
+        });
+      }
+
+      pathData.push({
+        type: "Z",
+        values: []
+      });
+
+      return pathData;
+    };
   })();
 }
