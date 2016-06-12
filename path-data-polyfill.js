@@ -1033,9 +1033,12 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       var r = this.r.baseVal.value;
 
       return [
-        { type: "M",  values: [cx, cy-r] },
-        { type: "A",  values: [r, r, 0, 0, 0, cx, cy+r] },
-        { type: "A",  values: [r, r, 0, 0, 0, cx, cy-r] }
+        { type: "M",  values: [cx + r, cy] },
+        { type: "A",  values: [r, r, 0, 0, 1, cx, cy+r] },
+        { type: "A",  values: [r, r, 0, 0, 1, cx-r, cy] },
+        { type: "A",  values: [r, r, 0, 0, 1, cx, cy-r] },
+        { type: "A",  values: [r, r, 0, 0, 1, cx+r, cy] },
+        { type: "Z",  values: [] }
       ];
     };
 
@@ -1046,9 +1049,12 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       var ry = this.ry.baseVal.value;
 
       return [
-        { type: "M",  values: [cx, cy-ry] },
-        { type: "A",  values: [rx, ry, 0, 0, 0, cx, cy+ry] },
-        { type: "A",  values: [rx, ry, 0, 0, 0, cx, cy-ry] }
+        { type: "M",  values: [cx + rx, cy] },
+        { type: "A",  values: [rx, ry, 0, 0, 1, cx, cy+ry] },
+        { type: "A",  values: [rx, ry, 0, 0, 1, cx-rx, cy] },
+        { type: "A",  values: [rx, ry, 0, 0, 1, cx, cy-ry] },
+        { type: "A",  values: [rx, ry, 0, 0, 1, cx+rx, cy] },
+        { type: "Z",  values: [] }
       ];
     };
 
