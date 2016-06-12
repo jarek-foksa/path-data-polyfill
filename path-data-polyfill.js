@@ -1020,7 +1020,9 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       ];
 
       // Get rid of redundant "A" segs when both rx and ry are 0
-      pathData = pathData.filter((s) => s.type === "A" && s.values[0] === 0 && s.values[1] === 0 ? false : true);
+      pathData = pathData.filter(function(s) {
+        return s.type === "A" && s.values[0] === 0 && s.values[1] === 0 ? false : true;
+      });
 
       return pathData;
     };
