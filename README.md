@@ -1,6 +1,6 @@
 ## Polyfill for SVG 2 getPathData() and setPathData() methods
 
-Follows the working draft of the [SVG Paths specicfication](https://svgwg.org/specs/paths/#InterfaceSVGPathData). Additionally includes the features proposed in [#155](https://github.com/w3c/svgwg/issues/155).
+Follows the working draft of the [SVG Paths specification](https://svgwg.org/specs/paths/#InterfaceSVGPathData). Additionally includes the features proposed in [#155](https://github.com/w3c/svgwg/issues/155).
 
 **Based on**:
 - SVGPathSeg polyfill by Philip Rogers (MIT License)
