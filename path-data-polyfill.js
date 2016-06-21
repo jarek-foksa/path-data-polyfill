@@ -1006,6 +1006,14 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       var rx = this.hasAttribute("rx") ? this.rx.baseVal.value : this.ry.baseVal.value;
       var ry = this.hasAttribute("ry") ? this.ry.baseVal.value : this.rx.baseVal.value;
 
+      if (rx > width / 2) {
+        rx = width / 2;
+      }
+
+      if (ry > height / 2) {
+        ry = height / 2;
+      }
+
       var pathData = [
         {type: "M", values: [x+rx, y]},
         {type: "H", values: [x+width-rx]},
@@ -1019,9 +1027,9 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         {type: "Z", values: []}
       ];
 
-      // Get rid of redundant "A" segs when both rx and ry are 0
+      // Get rid of redundant "A" segs when either rx or ry is 0
       pathData = pathData.filter(function(s) {
-        return s.type === "A" && s.values[0] === 0 && s.values[1] === 0 ? false : true;
+        return s.type === "A" && (s.values[0] === 0 || s.values[1] === 0) ? false : true;
       });
 
       return pathData;
