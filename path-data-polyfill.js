@@ -1082,14 +1082,20 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       }
     };
 
-    SVGLineElement.prototype.getPathData = function() {
-      return [
+    SVGLineElement.prototype.getPathData = function(options) {
+      var pathData = [
         { type: "M", values: [this.x1.baseVal.value, this.y1.baseVal.value] },
         { type: "L", values: [this.x2.baseVal.value, this.y2.baseVal.value] }
       ];
+
+      if (options.normalize) {
+        return reducePathData(absolutizePathData(pathData));
+      } else {
+        return pathData;
+      }
     };
 
-    SVGPolylineElement.prototype.getPathData = function() {
+    SVGPolylineElement.prototype.getPathData = function(options) {
       var pathData = [];
 
       for (var i = 0; i < this.points.numberOfItems; i += 1) {
@@ -1101,7 +1107,11 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         });
       }
 
-      return pathData;
+      if (options.normalize) {
+        return reducePathData(absolutizePathData(pathData));
+      } else {
+        return pathData;
+      }
     };
 
     SVGPolygonElement.prototype.getPathData = function() {
