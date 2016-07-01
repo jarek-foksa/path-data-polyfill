@@ -998,7 +998,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       }
     };
 
-    SVGRectElement.prototype.getPathData = function() {
+    SVGRectElement.prototype.getPathData = function(options) {
       var x = this.x.baseVal.value;
       var y = this.y.baseVal.value;
       var width = this.width.baseVal.value;
