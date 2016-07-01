@@ -1,5 +1,5 @@
-
 // @info
+//   https://github.com/jarek-foksa/path-data-polyfill.js
 //   Polyfill for SVG 2 getPathData() and setPathData() methods. Based on:
 //   - SVGPathSeg polyfill by Philip Rogers (MIT License)
 //     https://github.com/progers/pathseg
@@ -1027,10 +1027,14 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         {type: "Z", values: []}
       ];
 
-      // Get rid of redundant "A" segs when either rx or ry is 0
-      pathData = pathData.filter(function(s) {
-        return s.type === "A" && (s.values[0] === 0 || s.values[1] === 0) ? false : true;
-      });
+      if (options.normalize) {
+        pathData = reducePathData(absolutizePathData(pathData));
+      } else {
+        // Get rid of redundant "A" segs when either rx or ry is 0
+        pathData = pathData.filter(function (s) {
+            return s.type === 'A' && (s.values[0] === 0 || s.values[1] === 0) ? false : true;
+        });
+      }
 
       return pathData;
     };
