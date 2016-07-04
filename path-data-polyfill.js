@@ -1,5 +1,5 @@
-
 // @info
+//   https://github.com/jarek-foksa/path-data-polyfill.js
 //   Polyfill for SVG 2 getPathData() and setPathData() methods. Based on:
 //   - SVGPathSeg polyfill by Philip Rogers (MIT License)
 //     https://github.com/progers/pathseg
@@ -998,7 +998,7 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       }
     };
 
-    SVGRectElement.prototype.getPathData = function() {
+    SVGRectElement.prototype.getPathData = function(options) {
       var x = this.x.baseVal.value;
       var y = this.y.baseVal.value;
       var width = this.width.baseVal.value;
@@ -1027,20 +1027,24 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         {type: "Z", values: []}
       ];
 
-      // Get rid of redundant "A" segs when either rx or ry is 0
-      pathData = pathData.filter(function(s) {
-        return s.type === "A" && (s.values[0] === 0 || s.values[1] === 0) ? false : true;
-      });
+      if (options.normalize) {
+        pathData = reducePathData(absolutizePathData(pathData));
+      } else {
+        // Get rid of redundant "A" segs when either rx or ry is 0
+        pathData = pathData.filter(function (s) {
+            return s.type === 'A' && (s.values[0] === 0 || s.values[1] === 0) ? false : true;
+        });
+      }
 
       return pathData;
     };
 
-    SVGCircleElement.prototype.getPathData = function() {
+    SVGCircleElement.prototype.getPathData = function(options) {
       var cx = this.cx.baseVal.value;
       var cy = this.cy.baseVal.value;
       var r = this.r.baseVal.value;
 
-      return [
+      var pathData = [
         { type: "M",  values: [cx + r, cy] },
         { type: "A",  values: [r, r, 0, 0, 1, cx, cy+r] },
         { type: "A",  values: [r, r, 0, 0, 1, cx-r, cy] },
@@ -1048,15 +1052,21 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         { type: "A",  values: [r, r, 0, 0, 1, cx+r, cy] },
         { type: "Z",  values: [] }
       ];
+
+      if (options.normalize) {
+        return reducePathData(absolutizePathData(pathData));
+      } else {
+        return pathData;
+      }
     };
 
-    SVGEllipseElement.prototype.getPathData = function() {
+    SVGEllipseElement.prototype.getPathData = function(options) {
       var cx = this.cx.baseVal.value;
       var cy = this.cy.baseVal.value;
       var rx = this.rx.baseVal.value;
       var ry = this.ry.baseVal.value;
 
-      return [
+      var pathData = [
         { type: "M",  values: [cx + rx, cy] },
         { type: "A",  values: [rx, ry, 0, 0, 1, cx, cy+ry] },
         { type: "A",  values: [rx, ry, 0, 0, 1, cx-rx, cy] },
@@ -1064,16 +1074,28 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         { type: "A",  values: [rx, ry, 0, 0, 1, cx+rx, cy] },
         { type: "Z",  values: [] }
       ];
+
+      if (options.normalize) {
+        return reducePathData(absolutizePathData(pathData));
+      } else {
+        return pathData;
+      }
     };
 
-    SVGLineElement.prototype.getPathData = function() {
-      return [
+    SVGLineElement.prototype.getPathData = function(options) {
+      var pathData = [
         { type: "M", values: [this.x1.baseVal.value, this.y1.baseVal.value] },
         { type: "L", values: [this.x2.baseVal.value, this.y2.baseVal.value] }
       ];
+
+      if (options.normalize) {
+        return reducePathData(absolutizePathData(pathData));
+      } else {
+        return pathData;
+      }
     };
 
-    SVGPolylineElement.prototype.getPathData = function() {
+    SVGPolylineElement.prototype.getPathData = function(options) {
       var pathData = [];
 
       for (var i = 0; i < this.points.numberOfItems; i += 1) {
@@ -1085,7 +1107,11 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         });
       }
 
-      return pathData;
+      if (options.normalize) {
+        return reducePathData(absolutizePathData(pathData));
+      } else {
+        return pathData;
+      }
     };
 
     SVGPolygonElement.prototype.getPathData = function() {
