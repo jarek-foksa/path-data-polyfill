@@ -414,8 +414,8 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         cx = k * r1 * y / r2 + (x1 + x2) / 2;
         cy = k * -r2 * x / r1 + (y1 + y2) / 2;
 
-        f1 = Math.asin(((y1 - cy) / r2).toFixed(9));
-        f2 = Math.asin(((y2 - cy) / r2).toFixed(9));
+        f1 = Math.asin(parseFloat(((y1 - cy) / r2).toFixed(9)));
+        f2 = Math.asin(parseFloat(((y2 - cy) / r2).toFixed(9)));
 
         if (x1 < cx) {
           f1 = Math.PI - f1;
