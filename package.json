@@ -1,0 +1,29 @@
+{
+  "name": "path-data-polyfill",
+  "version": "1.0.0",
+  "description": "Polyfill for SVG 2 getPathData() and setPathData() methods",
+  "main": "shim.js",
+  "scripts": {
+    "prepublish": "rollup -c",
+    "test": "node test"
+  },
+  "repository": "git+https://github.com/jarek-foksa/path-data-polyfill.js.git",
+  "keywords": [
+    "svg",
+    "path",
+    "polyfill"
+  ],
+  "author": "Jarek Foksa",
+  "license": "MIT",
+  "bugs": "https://github.com/jarek-foksa/path-data-polyfill.js/issues",
+  "homepage": "https://github.com/jarek-foksa/path-data-polyfill.js#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "jsdom": "file:../jsdom",
+    "rollup": "^0.47.6",
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-commonjs": "^8.1.0",
+    "rollup-plugin-node-resolve": "^3.0.0"
+  }
+}
