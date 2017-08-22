@@ -450,199 +450,66 @@ function absolutizePathData(pathData) {
     const type = seg.type;
 
     if (type === "M") {
-      const [x, y] = seg.values;
+      currentX = seg.values[0];
+      currentY = seg.values[1];
 
-      absolutizedPathData.push({type: "M", values: [x, y]});
+      absolutizedPathData.push({type: "M", values: [currentX, currentY]});
 
-      subpathX = x;
-      subpathY = y;
-
-      currentX = x;
-      currentY = y;
+      subpathX = currentX;
+      subpathY = currentY;
     }
 
     else if (type === "m") {
-      let [x, y] = seg.values;
+      currentX += seg.values[0];
+      currentY += seg.values[1];
 
-      x += currentX;
-      y += currentY;
+      absolutizedPathData.push({type: "M", values: [currentX, currentY]});
 
-      absolutizedPathData.push({type: "M", values: [x, y]});
-
-      subpathX = x;
-      subpathY = y;
-
-      currentX = x;
-      currentY = y;
+      subpathX = currentX;
+      subpathY = currentY;
     }
 
-    else if (type === "L") {
-      const [x, y] = seg.values;
+    else if (type === "L" || type === "C" || type === "Q" || type === "A" || type === "S" || type === "T") {
+      absolutizedPathData.push({type, values: seg.values.slice()});
 
-      absolutizedPathData.push({type: "L", values: [x, y]});
-
-      currentX = x;
-      currentY = y;
+      currentX = seg.values[seg.values.length - 2];
+      currentY = seg.values[seg.values.length - 1];
     }
 
-    else if (type === "l") {
-      let [x, y] = seg.values;
+    else if (type === "l" || type === "c" || type === "q" || type === "s" || type === "t") {
+      absolutizedPathData.push({type: type.toUpperCase(), values: seg.values.map((v,i) => v + (i%2 ? currentY : currentX))});
 
-      x += currentX;
-      y += currentY;
-
-      absolutizedPathData.push({type: "L", values: [x, y]});
-
-      currentX = x;
-      currentY = y;
-    }
-
-    else if (type === "C") {
-      const [x1, y1, x2, y2, x, y] = seg.values;
-
-      absolutizedPathData.push({type: "C", values: [x1, y1, x2, y2, x, y]});
-
-      currentX = x;
-      currentY = y;
-    }
-
-    else if (type === "c") {
-      let [x1, y1, x2, y2, x, y] = seg.values;
-
-      x1 += currentX;
-      y1 += currentY;
-      x2 += currentX;
-      y2 += currentY;
-      x += currentX;
-      y += currentY;
-
-      absolutizedPathData.push({type: "C", values: [x1, y1, x2, y2, x, y]});
-
-      currentX = x;
-      currentY = y;
-    }
-
-    else if (type === "Q") {
-      const [x1, y1, x, y] = seg.values;
-
-      absolutizedPathData.push({type: "Q", values: [x1, y1, x, y]});
-
-      currentX = x;
-      currentY = y;
-    }
-
-    else if (type === "q") {
-      let [x1, y1, x, y] = seg.values;
-
-      x1 += currentX;
-      y1 += currentY;
-      x += currentX;
-      y += currentY;
-
-      absolutizedPathData.push({type: "Q", values: [x1, y1, x, y]});
-
-      currentX = x;
-      currentY = y;
-    }
-
-    else if (type === "A") {
-      const [rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y] = seg.values;
-
-      absolutizedPathData.push({
-        type: "A",
-        values: [rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y]
-      });
-
-      currentX = x;
-      currentY = y;
+      currentX += seg.values[seg.values.length - 2];
+      currentY += seg.values[seg.values.length - 1];
     }
 
     else if (type === "a") {
-      let [rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y] = seg.values;
+      const [rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y] = seg.values;
 
-      x += currentX;
-      y += currentY;
+      currentX += seg.values[seg.values.length - 2];
+      currentY += seg.values[seg.values.length - 1];
 
-      absolutizedPathData.push({
-        type: "A",
-        values: [rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y]
-      });
-
-      currentX = x;
-      currentY = y;
+      absolutizedPathData.push({type: "A", values: [rx, ry, xAxisRotation, largeArcFlag, sweepFlag, currentX, currentY]});
     }
 
     else if (type === "H") {
-      const [x] = seg.values;
-      absolutizedPathData.push({type: "H", values: [x]});
-      currentX = x;
-    }
-
-    else if (type === "h") {
-      let [x] = seg.values;
-      x += currentX;
-
-      absolutizedPathData.push({type: "H", values: [x]});
-      currentX = x;
+      absolutizedPathData.push({type, values: seg.values.slice()});
+      currentX = seg.values[0];
     }
 
     else if (type === "V") {
-      const [y] = seg.values;
+      absolutizedPathData.push({type, values: seg.values.slice()});
+      currentY = seg.values[0];
+    }
 
-      absolutizedPathData.push({type: "V", values: [y]});
-      currentY = y;
+    else if (type === "h") {
+      currentX += seg.values[0];
+      absolutizedPathData.push({type: "H", values: [currentX]});
     }
 
     else if (type === "v") {
-      let [y] = seg.values;
-      y += currentY;
-
-      absolutizedPathData.push({type: "V", values: [y]});
-      currentY = y;
-    }
-
-    else if (type === "S") {
-      const [x2, y2, x, y] = seg.values;
-
-      absolutizedPathData.push({type: "S", values: [x2, y2, x, y]});
-
-      currentX = x;
-      currentY = y;
-    }
-
-    else if (type === "s") {
-      let [x2, y2, x, y] = seg.values;
-
-      x2 += currentX;
-      y2 += currentY;
-      x += currentX;
-      y += currentY;
-
-      absolutizedPathData.push({type: "S", values: [x2, y2, x, y]});
-
-      currentX = x;
-      currentY = y;
-    }
-
-    else if (type === "T") {
-      const [x, y] = seg.values;
-
-      absolutizedPathData.push({type: "T", values: [x, y]});
-
-      currentX = x;
-      currentY = y;
-    }
-
-    else if (type === "t") {
-      let [x, y] = seg.values;
-
-      x += currentX;
-      y += currentY;
-
-      absolutizedPathData.push({type: "T", values: [x, y]});
-
-      currentX = x;
-      currentY = y;
+      currentY += seg.values[0];
+      absolutizedPathData.push({type: "V", values: [currentY]});
     }
 
     else if (type === "Z" || type === "z") {
