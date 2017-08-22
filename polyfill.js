@@ -5,7 +5,7 @@
 //   - SVGPathNormalizer by Tadahisa Motooka (MIT License)
 //     https://github.com/motooka/SVGPathNormalizer/tree/master/src
 //   - arcToCubicCurves() by Dmitry Baranovskiy (MIT License)
-//     https://github.com/DmitryBaranovskiy/raphael/blob/v2.1.1/raphael.core.js#L1837
+//     https://github.com/DmitryBaranovskiy/raphael/blob/master/raphael.js#L1894-L1982
 // @author
 //   Jarosław Foksa
 // @license
@@ -306,18 +306,11 @@ class Source {
 }
 
 
-const degToRad = degrees => Math.PI * degrees / 180;
-
-const rotate = (x, y, angleRad) => ({
-  x: x * Math.cos(angleRad) - y * Math.sin(angleRad),
-  y: x * Math.sin(angleRad) + y * Math.cos(angleRad)
-});
-
 // @info
 //   Get an array of corresponding cubic bezier curve parameters for given arc curve paramters.
-const arcToCubicCurves = (x1, y1, x2, y2, r1, r2, angle, largeArcFlag, sweepFlag, _recursive) => {
+function arcToCubicCurves(x1, y1, x2, y2, rx, ry, angle, largeArcFlag, sweepFlag, _recursive) {
   
-  const angleRad = degToRad(angle);
+  const angleRad = Math.PI * angle / 180;
   let params = [];
   let f1, f2, cx, cy;
 
@@ -328,40 +321,37 @@ const arcToCubicCurves = (x1, y1, x2, y2, r1, r2, angle, largeArcFlag, sweepFlag
     cy = _recursive[3];
   }
   else {
-    const {x: x1, y: y1} = rotate(x1, y1, -angleRad);
+    // rotate -angleRad [x1, y1]
+    const _x1 = x1 * Math.cos(-angleRad) - y1 * Math.sin(-angleRad);
+    const _y1 = x1 * Math.sin(-angleRad) + y1 * Math.cos(-angleRad);
+    // rotate -angleRad [x2, y2]
+    const _x2 = x2 * Math.cos(-angleRad) - y2 * Math.sin(-angleRad);
+    const _y2 = x2 * Math.sin(-angleRad) + y2 * Math.cos(-angleRad);
 
-    const {x: x2, y: y2} = rotate(x2, y2, -angleRad);
-
-    const x = (x1 - x2) / 2;
-    const y = (y1 - y2) / 2;
-    let h = (x * x) / (r1 * r1) + (y * y) / (r2 * r2);
+    const x = (_x1 - _x2) / 2;
+    const y = (_y1 - _y2) / 2;
+    let h = (x * x) / (rx * rx) + (y * y) / (ry * ry);
 
     if (h > 1) {
       h = Math.sqrt(h);
-      r1 = h * r1;
-      r2 = h * r2;
+      rx = h * rx;
+      ry = h * ry;
     }
 
-    const sign = largeArcFlag === sweepFlag ? -1 : 1;
+    const rx2 = rx * rx;
+    const ry2 = ry * ry;
+    const k = (largeArcFlag == sweepFlag ? -1 : 1) * 
+      Math.sqrt(Math.abs((rx2 * ry2 - rx2 * y * y - ry2 * x * x) / (rx2 * y * y + ry2 * x * x)));
 
-    const r1Pow = r1 * r1;
-    const r2Pow = r2 * r2;
+    cx = k * rx * y / ry + (_x1 + _x2) / 2;
+    cy = k * -ry * x / rx + (_y1 + _y2) / 2;
+    f1 = Math.asin(Math.round((_y1 - cy) / ry * 1e9) / 1e9);
+    f2 = Math.asin(Math.round((_y2 - cy) / ry * 1e9) / 1e9);
 
-    const left = r1Pow * r2Pow - r1Pow * y * y - r2Pow * x * x;
-    const right = r1Pow * y * y + r2Pow * x * x;
-
-    const k = sign * Math.sqrt(Math.abs(left/right));
-
-    cx = k * r1 * y / r2 + (x1 + x2) / 2;
-    cy = k * -r2 * x / r1 + (y1 + y2) / 2;
-
-    f1 = Math.asin(Math.round((y1 - cy) / r2 * 1e9) / 1e9);
-    f2 = Math.asin(Math.round((y2 - cy) / r2 * 1e9) / 1e9);
-
-    if (x1 < cx) {
+    if (_x1 < cx) {
       f1 = Math.PI - f1;
     }
-    if (x2 < cx) {
+    if (_x2 < cx) {
       f2 = Math.PI - f2;
     }
 
@@ -381,22 +371,17 @@ const arcToCubicCurves = (x1, y1, x2, y2, r1, r2, angle, largeArcFlag, sweepFlag
   }
 
   let df = f2 - f1;
+  const _120 = Math.PI * 120 / 180;
 
-  if (Math.abs(df) > Math.PI * 120 / 180) {
+  if (Math.abs(df) > _120) {
     const f2old = f2;
     const x2old = x2;
     const y2old = y2;
 
-    if (sweepFlag && f2 > f1) {
-      f2 = f1 + (Math.PI * 120 / 180) * (1);
-    }
-    else {
-      f2 = f1 + (Math.PI * 120 / 180) * (-1);
-    }
-
-    x2 = cx + r1 * Math.cos(f2);
-    y2 = cy + r2 * Math.sin(f2);
-    params = arcToCubicCurves(x2, y2, x2old, y2old, r1, r2, angle, 0, sweepFlag, [f2, f2old, cx, cy]);
+    f2 = f1 + _120 * (sweepFlag && f2 > f1 ? 1 : -1);
+    x2 = cx + rx * Math.cos(f2);
+    y2 = cy + ry * Math.sin(f2);
+    params = arcToCubicCurves(x2, y2, x2old, y2old, rx, ry, angle, 0, sweepFlag, [f2, f2old, cx, cy]);
   }
 
   df = f2 - f1;
@@ -406,8 +391,8 @@ const arcToCubicCurves = (x1, y1, x2, y2, r1, r2, angle, largeArcFlag, sweepFlag
   const c2 = Math.cos(f2);
   const s2 = Math.sin(f2);
   const t = Math.tan(df / 4);
-  const hx = 4 / 3 * r1 * t;
-  const hy = 4 / 3 * r2 * t;
+  const hx = 4 / 3 * rx * t;
+  const hy = 4 / 3 * ry * t;
 
   const m1 = [x1, y1];
   const m2 = [x1 + hx * s1, y1 - hy * c1];
@@ -417,23 +402,18 @@ const arcToCubicCurves = (x1, y1, x2, y2, r1, r2, angle, largeArcFlag, sweepFlag
   m2[0] = 2 * m1[0] - m2[0];
   m2[1] = 2 * m1[1] - m2[1];
 
+  const result = [m2, m3, m4].concat(params);
+
   if (_recursive) {
-    return [m2, m3, m4].concat(params);
+    return result;
   }
-  else {
-    params = [m2, m3, m4].concat(params).join().split(",");
-
-    const newParams = [];
-
-    for (let i = 0; i< params.length; i++) {
-      newParams[i] = i % 2 ? 
-        rotate(params[i - 1], params[i], angleRad).y :
-        rotate(params[i], params[i + 1], angleRad).x;
-    }
-
-    return newParams;
-  }
-};
+  const results = [].concat(...result);
+  // rotate coords by angleRad
+  return results.map((res, i) => i % 2 ?
+    results[i - 1] * Math.sin(angleRad) + res * Math.cos(angleRad) :
+    res * Math.cos(angleRad) - results[i + 1] * Math.sin(angleRad)
+  );
+}
 
 // @info
 //   Takes any path data, returns path data that consists only from absolute commands.
@@ -446,8 +426,8 @@ function absolutizePathData(pathData) {
   let subpathX = null;
   let subpathY = null;
 
-  for (const seg of pathData) {
-    const type = seg.type;
+  for (let i = 0; i < pathData.length; i++) {
+    const seg = pathData[i], type = seg.type;
 
     if (type === "M") {
       currentX = seg.values[0];
@@ -528,7 +508,6 @@ function absolutizePathData(pathData) {
 //   "M", "L", "C" and "Z" commands.
 function reducePathData(pathData) {
   const reducedPathData = [];
-  let lastType = null;
 
   let lastControlX = null;
   let lastControlY = null;
@@ -539,17 +518,14 @@ function reducePathData(pathData) {
   let subpathX = null;
   let subpathY = null;
 
-  for (const seg of pathData) {
+  for (let i = 0; i < pathData.length; i++) {
+    const seg = pathData[i];
+
     if (seg.type === "M") {
-      const [x, y] = seg.values;
+      currentX = subpathX = seg.values[0];
+      currentY = subpathY = seg.values[1];
 
-      reducedPathData.push({type: "M", values: [x, y]});
-
-      subpathX = x;
-      subpathY = y;
-
-      currentX = x;
-      currentY = y;
+      reducedPathData.push({type: "M", values: [currentX, currentY]});
     }
 
     else if (seg.type === "C") {
@@ -591,6 +567,7 @@ function reducePathData(pathData) {
 
     else if (seg.type === "S") {
       const [x2, y2, x, y] = seg.values;
+      const lastType = i && pathData[i-1].type;
       let cx1, cy1;
 
       if (lastType === "C" || lastType === "S") {
@@ -613,6 +590,7 @@ function reducePathData(pathData) {
 
     else if (seg.type === "T") {
       const [x, y] = seg.values;
+      const lastType = i && pathData[i-1].type;
       let x1, y1;
 
       if (lastType === "Q" || lastType === "T") {
@@ -655,25 +633,23 @@ function reducePathData(pathData) {
     }
 
     else if (seg.type === "A") {
-      const [r1, r2, angle, largeArcFlag, sweepFlag, x, y] = seg.values;
+      const [rx, ry, angle, largeArcFlag, sweepFlag, x, y] = seg.values;
 
-      if (r1 === 0 || r2 === 0) {
+      if (rx === 0 || ry === 0) {
         reducedPathData.push({type: "C", values: [currentX, currentY, x, y, x, y]});
 
         currentX = x;
         currentY = y;
       }
-      else {
-        if (currentX !== x || currentY !== y) {
-          const curves = arcToCubicCurves(currentX, currentY, x, y, r1, r2, angle, largeArcFlag, sweepFlag);
+      else if (currentX !== x || currentY !== y) {
+        const curves = arcToCubicCurves(currentX, currentY, x, y, rx, ry, angle, largeArcFlag, sweepFlag);
 
-          curves.forEach( function(curve) {
-            reducedPathData.push({type: "C", values: curve});
+        const curvesBy6 = Array.from({length:Math.ceil(curves.length/6)}, (_,i) => curves.slice(6*i, 6*(i+1)));
 
-            currentX = x;
-            currentY = y;
-          });
-        }
+        reducedPathData.push(...curvesBy6.map(cs => ({type: "C", values: cs})));
+
+        currentX = x;
+        currentY = y;
       }
     }
 
@@ -683,8 +659,6 @@ function reducePathData(pathData) {
       currentX = subpathX;
       currentY = subpathY;
     }
-
-    lastType = seg.type;
   }
 
   return reducedPathData;
@@ -814,7 +788,7 @@ exports.getLinePathData = function() {
 exports.getPolylinePathData = function() {
   const pathData = [];
 
-  for (let i = 0; i < this.points.numberOfItems; i += 1) {
+  for (let i = 0; i < this.points.numberOfItems; i++) {
     const point = this.points.getItem(i);
 
     pathData.push({
@@ -829,7 +803,7 @@ exports.getPolylinePathData = function() {
 exports.getPolygonPathData = function() {
   const pathData = [];
 
-  for (let i = 0; i < this.points.numberOfItems; i += 1) {
+  for (let i = 0; i < this.points.numberOfItems; i++) {
     const point = this.points.getItem(i);
 
     pathData.push({
