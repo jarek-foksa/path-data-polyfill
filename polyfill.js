@@ -308,112 +308,97 @@ class Source {
 
 // @info
 //   Get an array of corresponding cubic bezier curve parameters for given arc curve paramters.
-function arcToCubicCurves(x1, y1, x2, y2, rx, ry, angle, largeArcFlag, sweepFlag, _recursive) {
-  
-  const angleRad = Math.PI * angle / 180;
-  let params = [];
-  let f1, f2, cx, cy;
+function a2c(x1, y1, rx, ry, angle, large_arc_flag, sweep_flag, x2, y2, recursive) {
+  // for more information of where this math came from visit:
+  // http://www.w3.org/TR/SVG11/implnote.html#ArcImplementationNotes
+  var _120 = Math.PI * 120 / 180,
+      rad = Math.PI / 180 * (+angle || 0),
+      res = [],
+      xy,
+      rotate = function (x, y, rad) {
+          var X = x * Math.cos(rad) - y * Math.sin(rad),
+              Y = x * Math.sin(rad) + y * Math.cos(rad);
+          return {x: X, y: Y};
+      };
+  if (!recursive) {
+      xy = rotate(x1, y1, -rad);
+      x1 = xy.x;
+      y1 = xy.y;
+      xy = rotate(x2, y2, -rad);
+      x2 = xy.x;
+      y2 = xy.y;
+      var cos = Math.cos(Math.PI / 180 * angle),
+          sin = Math.sin(Math.PI / 180 * angle),
+          x = (x1 - x2) / 2,
+          y = (y1 - y2) / 2;
+      var h = (x * x) / (rx * rx) + (y * y) / (ry * ry);
+      if (h > 1) {
+          h = Math.sqrt(h);
+          rx = h * rx;
+          ry = h * ry;
+      }
+      var rx2 = rx * rx,
+          ry2 = ry * ry,
+          k = (large_arc_flag == sweep_flag ? -1 : 1) *
+              Math.sqrt(Math.abs((rx2 * ry2 - rx2 * y * y - ry2 * x * x) / (rx2 * y * y + ry2 * x * x))),
+          cx = k * rx * y / ry + (x1 + x2) / 2,
+          cy = k * -ry * x / rx + (y1 + y2) / 2,
+          f1 = Math.asin(((y1 - cy) / ry).toFixed(9)),
+          f2 = Math.asin(((y2 - cy) / ry).toFixed(9));
 
-  if (_recursive) {
-    f1 = _recursive[0];
-    f2 = _recursive[1];
-    cx = _recursive[2];
-    cy = _recursive[3];
+      f1 = x1 < cx ? Math.PI - f1 : f1;
+      f2 = x2 < cx ? Math.PI - f2 : f2;
+      f1 < 0 && (f1 = Math.PI * 2 + f1);
+      f2 < 0 && (f2 = Math.PI * 2 + f2);
+      if (sweep_flag && f1 > f2) {
+          f1 = f1 - Math.PI * 2;
+      }
+      if (!sweep_flag && f2 > f1) {
+          f2 = f2 - Math.PI * 2;
+      }
+  } else {
+      f1 = recursive[0];
+      f2 = recursive[1];
+      cx = recursive[2];
+      cy = recursive[3];
   }
-  else {
-    // rotate -angleRad [x1, y1]
-    const _x1 = x1 * Math.cos(-angleRad) - y1 * Math.sin(-angleRad);
-    const _y1 = x1 * Math.sin(-angleRad) + y1 * Math.cos(-angleRad);
-    // rotate -angleRad [x2, y2]
-    const _x2 = x2 * Math.cos(-angleRad) - y2 * Math.sin(-angleRad);
-    const _y2 = x2 * Math.sin(-angleRad) + y2 * Math.cos(-angleRad);
-
-    const x = (_x1 - _x2) / 2;
-    const y = (_y1 - _y2) / 2;
-    let h = (x * x) / (rx * rx) + (y * y) / (ry * ry);
-
-    if (h > 1) {
-      h = Math.sqrt(h);
-      rx = h * rx;
-      ry = h * ry;
-    }
-
-    const rx2 = rx * rx;
-    const ry2 = ry * ry;
-    const k = (largeArcFlag == sweepFlag ? -1 : 1) * 
-      Math.sqrt(Math.abs((rx2 * ry2 - rx2 * y * y - ry2 * x * x) / (rx2 * y * y + ry2 * x * x)));
-
-    cx = k * rx * y / ry + (_x1 + _x2) / 2;
-    cy = k * -ry * x / rx + (_y1 + _y2) / 2;
-    f1 = Math.asin(Math.round((_y1 - cy) / ry * 1e9) / 1e9);
-    f2 = Math.asin(Math.round((_y2 - cy) / ry * 1e9) / 1e9);
-
-    if (_x1 < cx) {
-      f1 = Math.PI - f1;
-    }
-    if (_x2 < cx) {
-      f2 = Math.PI - f2;
-    }
-
-    if (f1 < 0) {
-      f1 = Math.PI * 2 + f1;
-    }
-    if (f2 < 0) {
-      f2 = Math.PI * 2 + f2;
-    }
-
-    if (sweepFlag && f1 > f2) {
-      f1 = f1 - Math.PI * 2;
-    }
-    if (!sweepFlag && f2 > f1) {
-      f2 = f2 - Math.PI * 2;
-    }
-  }
-
-  let df = f2 - f1;
-  const _120 = Math.PI * 120 / 180;
-
+  var df = f2 - f1;
   if (Math.abs(df) > _120) {
-    const f2old = f2;
-    const x2old = x2;
-    const y2old = y2;
-
-    f2 = f1 + _120 * (sweepFlag && f2 > f1 ? 1 : -1);
-    x2 = cx + rx * Math.cos(f2);
-    y2 = cy + ry * Math.sin(f2);
-    params = arcToCubicCurves(x2, y2, x2old, y2old, rx, ry, angle, 0, sweepFlag, [f2, f2old, cx, cy]);
+      var f2old = f2,
+          x2old = x2,
+          y2old = y2;
+      f2 = f1 + _120 * (sweep_flag && f2 > f1 ? 1 : -1);
+      x2 = cx + rx * Math.cos(f2);
+      y2 = cy + ry * Math.sin(f2);
+      res = a2c(x2, y2, rx, ry, angle, 0, sweep_flag, x2old, y2old, [f2, f2old, cx, cy]);
   }
-
   df = f2 - f1;
-
-  const c1 = Math.cos(f1);
-  const s1 = Math.sin(f1);
-  const c2 = Math.cos(f2);
-  const s2 = Math.sin(f2);
-  const t = Math.tan(df / 4);
-  const hx = 4 / 3 * rx * t;
-  const hy = 4 / 3 * ry * t;
-
-  const m1 = [x1, y1];
-  const m2 = [x1 + hx * s1, y1 - hy * c1];
-  const m3 = [x2 + hx * s2, y2 - hy * c2];
-  const m4 = [x2, y2];
-
+  var c1 = Math.cos(f1),
+      s1 = Math.sin(f1),
+      c2 = Math.cos(f2),
+      s2 = Math.sin(f2),
+      t = Math.tan(df / 4),
+      hx = 4 / 3 * rx * t,
+      hy = 4 / 3 * ry * t,
+      m1 = [x1, y1],
+      m2 = [x1 + hx * s1, y1 - hy * c1],
+      m3 = [x2 + hx * s2, y2 - hy * c2],
+      m4 = [x2, y2];
   m2[0] = 2 * m1[0] - m2[0];
   m2[1] = 2 * m1[1] - m2[1];
-
-  const result = [m2, m3, m4].concat(params);
-
-  if (_recursive) {
-    return result;
+  if (recursive) {
+      return [m2, m3, m4].concat(res);
+  } else {
+      res = [m2, m3, m4].concat(res).join().split(","); // can just do [].concat(...arr) to flatten
+      var newres = [];
+      for (var i = 0, ii = res.length; i < ii; i++) {
+          newres[i] = i % 2 ? rotate(res[i - 1], res[i], rad).y : rotate(res[i], res[i + 1], rad).x;
+      }
+      return newres;
   }
-  const results = [].concat(...result);
-  // rotate coords by angleRad
-  return results.map((res, i) => i % 2 ?
-    results[i - 1] * Math.sin(angleRad) + res * Math.cos(angleRad) :
-    res * Math.cos(angleRad) - results[i + 1] * Math.sin(angleRad)
-  );
 }
+
+
 
 // @info
 //   Takes any path data, returns path data that consists only from absolute commands.
@@ -642,7 +627,7 @@ function reducePathData(pathData) {
         currentY = y;
       }
       else if (currentX !== x || currentY !== y) {
-        const curves = arcToCubicCurves(currentX, currentY, x, y, rx, ry, angle, largeArcFlag, sweepFlag);
+        const curves = a2c(currentX, currentY, rx, ry, angle, largeArcFlag, sweepFlag, x, y);
 
         const curvesBy6 = Array.from({length:Math.ceil(curves.length/6)}, (_,i) => curves.slice(6*i, 6*(i+1)));
 
