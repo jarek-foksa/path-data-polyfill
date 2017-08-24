@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Path Data Polyfill tests</title>
+    <script src="path-data-polyfill.js"></script>
+    <script>
+      var setPathDataTests = [
+        {
+          input: [
+            { type: "M", values: [0, 0] },
+            { type: "L", values: [10, 10] },
+            { type: "Z", values: [] }
+          ],
+          output: "M 0 0 L 10 10 Z"
+        },
+        {
+          input: [],
+          output: null
+        },
+      ];
+
+      var getPathDataTests = [
+        {
+          input: "M 0 0 H 100 V 100 H 0 Z",
+          output: [
+            { type: "M", values: [0, 0] },
+            { type: "H", values: [100] },
+            { type: "V", values: [100] },
+            { type: "H", values: [0] },
+            { type: "Z", values: [] }
+          ]
+        },
+        {
+          input: "M 216 197 L 413 140 C 413 140 438 40 302 44",
+          output: [
+            { type: "M", values: [216, 197] },
+            { type: "L", values: [413, 140] },
+            { type: "C", values: [413, 140, 438, 40, 302, 44] }
+          ]
+        }
+      ];
+
+      var getNormalizedPathDataTests = [
+        {
+          input: "M 0 0 H 100 V 100 H 0 Z",
+          output: [
+            { type: "M", values: [0, 0] },
+            { type: "L", values: [100, 0] },
+            { type: "L", values: [100, 100] },
+            { type: "L", values: [0, 100] },
+            { type: "Z", values: [] }
+          ]
+        }
+      ];
+
+      var comparePathData = function(data1, data2) {
+        return JSON.stringify(data1) === JSON.stringify(data2);
+      };
+
+      var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+      console.info("Test path.setPathData()");
+
+      setPathDataTests.forEach(function(test) {
+        path.setPathData(test.input);
+        var d = path.getAttribute("d");
+
+        if (d === test.output) {
+          console.log('%c[PASSED]', 'color: white; background: green;', test.input, ' => ' + test.output);
+        }
+        else {
+          console.log('%c[FAILED]', 'color: white; background: red;', test.input, ' => ' + test.output);
+        }
+      });
+
+      console.info("\nTest path.getPathData()");
+
+      getPathDataTests.forEach(function(test) {
+        path.setAttribute("d", test.input);
+        var pathData = path.getPathData();
+
+        if (comparePathData(pathData, test.output)) {
+          console.log('%c[PASSED]', 'color: white; background: green;', test.input + ' => ', test.output);
+        }
+        else {
+          console.log('%c[FAILED]', 'color: white; background: red;', test.input + ' => ', test.output);
+        }
+      });
+
+      console.info("\nTest path.getPathData({normalize: true})");
+
+      getNormalizedPathDataTests.forEach(function(test) {
+        path.setAttribute("d", test.input);
+        var pathData = path.getPathData({normalize: true});
+
+        if (comparePathData(pathData, test.output)) {
+          console.log('%c[PASSED]', 'color: white; background: green;', test.input + ' => ', test.output);
+        }
+        else {
+          console.log('%c[FAILED]', 'color: white; background: red;', test.input + ' => ', pathData, test.output);
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <svg>
+      <h3>Running tests. Open dev console to show results.</h3>
+    </svg>
+  </body>
+</html>
