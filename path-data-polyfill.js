@@ -480,24 +480,16 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         return [m2, m3, m4].concat(params);
       }
       else {
-        params = [m2, m3, m4].concat(params).join().split(",");
+        params = [m2, m3, m4].concat(params);
 
         var curves = [];
-        var curveParams = [];
 
-        params.forEach( function(param, i) {
-          if (i % 2) {
-            curveParams.push(rotate(params[i - 1], params[i], angleRad).y);
-          }
-          else {
-            curveParams.push(rotate(params[i], params[i + 1], angleRad).x);
-          }
-
-          if (curveParams.length === 6) {
-            curves.push(curveParams);
-            curveParams = [];
-          }
-        });
+        for (var i = 0; i < params.length; i+=3) {
+          var r1 = rotate(params[3*i][0], params[3*i][1], angleRad);
+          var r2 = rotate(params[3*i+1][0], params[3*i+1][1], angleRad);
+          var r3 = rotate(params[3*i+2][0], params[3*i+2][1], angleRad);
+          curves.push([r1.x, r1.y, r2.x, r2.y, r3.x, r3.y]);
+        }
 
         return curves;
       }
@@ -895,10 +887,10 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
 
               curves.forEach( function(curve) {
                 reducedPathData.push({type: "C", values: curve});
-
-                currentX = x;
-                currentY = y;
               });
+
+              currentX = x;
+              currentY = y;
             }
           }
         }
