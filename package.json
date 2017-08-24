@@ -1,5 +1,5 @@
 {
-  "name": "path-data-polyfill",
+  "name": "path-data-polyfill.js",
   "version": "1.0.0",
   "description": "Polyfill for SVG 2 getPathData() and setPathData() methods",
   "main": "path-data-polyfill.js",
