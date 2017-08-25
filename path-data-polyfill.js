@@ -485,9 +485,9 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
         var curves = [];
 
         for (var i = 0; i < params.length; i+=3) {
-          var r1 = rotate(params[3*i][0], params[3*i][1], angleRad);
-          var r2 = rotate(params[3*i+1][0], params[3*i+1][1], angleRad);
-          var r3 = rotate(params[3*i+2][0], params[3*i+2][1], angleRad);
+          var r1 = rotate(params[i][0], params[i][1], angleRad);
+          var r2 = rotate(params[i+1][0], params[i+1][1], angleRad);
+          var r3 = rotate(params[i+2][0], params[i+2][1], angleRad);
           curves.push([r1.x, r1.y, r2.x, r2.y, r3.x, r3.y]);
         }
 
