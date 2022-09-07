@@ -347,7 +347,9 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
     }
 
     var setAttribute = SVGPathElement.prototype.setAttribute;
+    var setAttributeNS = SVGPathElement.prototype.setAttributeNS;
     var removeAttribute = SVGPathElement.prototype.removeAttribute;
+    var removeAttributeNS = SVGPathElement.prototype.removeAttributeNS;
 
     var $cachedPathData = window.Symbol ? Symbol() : "__cachedPathData";
     var $cachedNormalizedPathData = window.Symbol ? Symbol() : "__cachedNormalizedPathData";
@@ -917,6 +919,27 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       setAttribute.call(this, name, value);
     };
 
+    SVGPathElement.prototype.setAttributeNS = function(namespace, name, value) {
+      if (name === "d") {
+        var namespaceURI = "http://www.w3.org/2000/svg";
+
+        if (namespace) {
+          for (var attribute of this.ownerSVGElement.attributes) {
+            if (attribute.name === `xmlns:${namespace}`) {
+              namespaceURI = attribute.value;
+            }
+          }
+        }
+
+        if (namespaceURI === "http://www.w3.org/2000/svg") {
+          this[$cachedPathData] = null;
+          this[$cachedNormalizedPathData] = null;
+        }
+      }
+
+      setAttributeNS.call(this, namespace, name, value);
+    };
+
     SVGPathElement.prototype.removeAttribute = function(name, value) {
       if (name === "d") {
         this[$cachedPathData] = null;
@@ -924,6 +947,27 @@ if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathDa
       }
 
       removeAttribute.call(this, name);
+    };
+
+    SVGPathElement.prototype.removeAttributeNS = function(namespace, name) {
+      if (name === "d") {
+        var namespaceURI = "http://www.w3.org/2000/svg";
+
+        if (namespace) {
+          for (var attribute of this.ownerSVGElement.attributes) {
+            if (attribute.name === `xmlns:${namespace}`) {
+              namespaceURI = attribute.value;
+            }
+          }
+        }
+
+        if (namespaceURI === "http://www.w3.org/2000/svg") {
+          this[$cachedPathData] = null;
+          this[$cachedNormalizedPathData] = null;
+        }
+      }
+
+      removeAttributeNS.call(this, namespace, name);
     };
 
     SVGPathElement.prototype.getPathData = function(options) {
