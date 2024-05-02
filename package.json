@@ -8,5 +8,10 @@
   "author": "Jarosław Foksa",
   "license": "MIT",
   "bugs": "https://github.com/jarek-foksa/path-data-polyfill/issues",
-  "homepage": "https://github.com/jarek-foksa/path-data-polyfill#readme"
+  "homepage": "https://github.com/jarek-foksa/path-data-polyfill#readme",
+  "exports": {
+    ".": {
+        "types": "./types.d.ts"
+    }
+  }
 }
