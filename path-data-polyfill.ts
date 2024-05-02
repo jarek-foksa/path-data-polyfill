@@ -1,1 +1,1 @@
-export * from './path-data-polyfill.js';
+export * from "./path-data-polyfill.js";

@@ -16,8 +16,6 @@ interface SVGPathElement {
 type SVGPathDataCommand =
 	| `A`
 	| `a`
-	| `B`
-	| `b`
 	| `C`
 	| `c`
 	| `H`
@@ -28,8 +26,6 @@ type SVGPathDataCommand =
 	| `m`
 	| `Q`
 	| `q`
-	| `R`
-	| `r`
 	| `S`
 	| `s`
 	| `T`
