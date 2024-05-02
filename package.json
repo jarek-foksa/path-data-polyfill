@@ -1,6 +1,6 @@
 {
   "name": "path-data-polyfill",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Polyfill for SVG 2 getPathData() and setPathData() methods",
   "main": "path-data-polyfill.js",
   "repository": "git+https://github.com/jarek-foksa/path-data-polyfill.js.git",
