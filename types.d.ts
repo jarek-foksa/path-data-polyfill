@@ -14,26 +14,26 @@ interface SVGPathElement {
 }
 
 type SVGPathDataCommand =
-	| `A`
-	| `a`
-	| `C`
-	| `c`
-	| `H`
-	| `h`
-	| `L`
-	| `l`
-	| `M`
-	| `m`
-	| `Q`
-	| `q`
-	| `S`
-	| `s`
-	| `T`
-	| `t`
-	| `V`
-	| `v`
-	| `Z`
-	| `z`;
+	| "A"
+	| "a"
+	| "C"
+	| "c"
+	| "H"
+	| "h"
+	| "L"
+	| "l"
+	| "M"
+	| "m"
+	| "Q"
+	| "q"
+	| "S"
+	| "s"
+	| "T"
+	| "t"
+	| "V"
+	| "v"
+	| "Z"
+	| "z";
 
 interface SVGPathDataSettings {
 	normalize: boolean;
