@@ -567,7 +567,12 @@
     }
   };
 
-  if (!SVGPathElement.prototype.getPathData || !SVGPathElement.prototype.setPathData) {
+  if (
+    !SVGPathElement.prototype.getPathData ||
+    !SVGPathElement.prototype.setPathData ||
+    // Path Data API was introduced in Firefox 137, but it is not usable
+    navigator.userAgent.indexOf("Firefox/") > -1
+  ) {
     var commandsMap = {
       "Z":"Z", "M":"M", "L":"L", "C":"C", "Q":"Q", "A":"A", "H":"H", "V":"V", "S":"S", "T":"T",
       "z":"Z", "m":"m", "l":"l", "c":"c", "q":"q", "a":"a", "h":"h", "v":"v", "s":"s", "t":"t"
