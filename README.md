@@ -52,7 +52,7 @@ let createTrianglePath = (x = 0, y = 0, width = 100, height = 200) => {
     { type: "M", values: [x + (width / 2), y] },
     { type: "L", values: [x + width, y + height] },
     { type: "L", values: [x, y + height] },
-    { type: "Z"}
+    { type: "Z", values: []}
   ];
 
   path.setPathData(pathData);
@@ -81,7 +81,7 @@ let ellipseToPath = (ellipse) => {
     {type: "M", values: [cx, cy - ry]},
     {type: "A", values: [rx, ry, 0, 0, 0, cx, cy+ry]},
     {type: "A", values: [rx, ry, 0, 0, 0, cx, cy-ry]},
-    {type: "Z"}
+    {type: "Z", values: []}
   ];
   
   path.setPathData(pathData);
